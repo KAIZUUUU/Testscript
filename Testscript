@@ -1,0 +1,130 @@
+-- Main GUI Initialization
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local MinimizeButton = Instance.new("TextButton")
+local ExpandButton = Instance.new("TextButton")
+local CheatList = Instance.new("Frame")
+local PlayerList = Instance.new("ScrollingFrame")
+local AimbotButton = Instance.new("TextButton")
+
+-- ScreenGui Settings
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Name = "AntiCheatTestGUI"
+
+-- MainFrame Settings
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+MainFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+MainFrame.Visible = true
+MainFrame.Parent = ScreenGui
+
+-- Minimize Button
+MinimizeButton.Size = UDim2.new(0, 50, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -55, 0, 5)
+MinimizeButton.Text = "-"
+MinimizeButton.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+MinimizeButton.Parent = MainFrame
+
+-- Expand Button (Initially hidden)
+ExpandButton.Size = UDim2.new(0, 50, 0, 25)
+ExpandButton.Position = UDim2.new(0.5, -25, 0.5, -12)
+ExpandButton.Text = "+"
+ExpandButton.BackgroundColor3 = Color3.new(0.2, 0.8, 0.2)
+ExpandButton.Parent = ScreenGui
+ExpandButton.Visible = false
+
+-- CheatList Settings
+CheatList.Size = UDim2.new(1, 0, 1, -50)
+CheatList.Position = UDim2.new(0, 0, 0, 50)
+CheatList.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+CheatList.Parent = MainFrame
+
+-- PlayerList Settings
+PlayerList.Size = UDim2.new(1, -20, 0.4, 0)
+PlayerList.Position = UDim2.new(0, 10, 0, 10)
+PlayerList.BackgroundColor3 = Color3.new(0.2, 0.2, 0.5)
+PlayerList.CanvasSize = UDim2.new(0, 0, 2, 0)
+PlayerList.Parent = CheatList
+
+-- Aimbot Button
+AimbotButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+AimbotButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+AimbotButton.Text = "Enable Aimbot"
+AimbotButton.BackgroundColor3 = Color3.new(0.4, 0.8, 0.4)
+AimbotButton.Parent = CheatList
+
+-- Functions
+local isMinimized = false
+
+local function toggleGUI()
+    if isMinimized then
+        MainFrame.Visible = true
+        ExpandButton.Visible = false
+    else
+        MainFrame.Visible = false
+        ExpandButton.Visible = true
+    end
+    isMinimized = not isMinimized
+end
+
+MinimizeButton.MouseButton1Click:Connect(toggleGUI)
+ExpandButton.MouseButton1Click:Connect(toggleGUI)
+
+-- Dynamic Player List
+local function updatePlayerList()
+    PlayerList:ClearAllChildren()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        local playerLabel = Instance.new("TextLabel")
+        playerLabel.Size = UDim2.new(1, 0, 0, 20)
+        playerLabel.Text = player.Name
+        playerLabel.TextColor3 = Color3.new(1, 1, 1)
+        playerLabel.BackgroundTransparency = 1
+        playerLabel.Parent = PlayerList
+    end
+end
+
+game.Players.PlayerAdded:Connect(updatePlayerList)
+game.Players.PlayerRemoving:Connect(updatePlayerList)
+updatePlayerList()
+
+-- Cheats
+local function enableSpeedHack()
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
+end
+
+local function enableHealthHack()
+    game.Players.LocalPlayer.Character.Humanoid.Health = 9999
+end
+
+local function enableTeleport()
+    game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(0, 100, 0))
+end
+
+local function enableAimbot()
+    local function getNearestPlayer()
+        local nearestPlayer = nil
+        local shortestDistance = 30
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+                local distance = (player.Character.Head.Position - game.Players.LocalPlayer.Character.Head.Position).magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    nearestPlayer = player
+                end
+            end
+        end
+        return nearestPlayer
+    end
+
+    local nearestPlayer = getNearestPlayer()
+    if nearestPlayer and nearestPlayer.Character:FindFirstChild("Head") then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.lookAt(
+            game.Players.LocalPlayer.Character.HumanoidRootPart.Position,
+            nearestPlayer.Character.Head.Position
+        )
+    end
+end
+
+AimbotButton.MouseButton1Click:Connect(enableAimbot)
+
+-- Add more buttons for other cheats as needed.
